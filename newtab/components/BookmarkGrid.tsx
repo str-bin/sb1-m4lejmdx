@@ -1,7 +1,7 @@
 import React from 'react'
 import { Draggable } from 'react-beautiful-dnd'
 import BookmarkCard from './BookmarkCard'
-import type { Bookmark } from '~types/bookmark'
+import type { Bookmark } from '../../types/bookmark'
 
 interface BookmarkGridProps {
   bookmarks: Bookmark[]

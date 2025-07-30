@@ -5,12 +5,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~components/ui/dropdown-menu'
-import { Button } from '~components/ui/button'
-import { Badge } from '~components/ui/badge'
-import { useBookmarkStore } from '~store/bookmarkStore'
-import { getFaviconUrl } from '~lib/utils'
-import type { Bookmark } from '~types/bookmark'
+} from '../../components/ui/dropdown-menu'
+import { Button } from '../../components/ui/button'
+import { Badge } from '../../components/ui/badge'
+import { useBookmarkStore } from '../../store/bookmarkStore'
+import { getFaviconUrl } from '../../lib/utils'
+import type { Bookmark } from '../../types/bookmark'
 import { toast } from 'sonner'
 import EditBookmarkDialog from './EditBookmarkDialog'
 

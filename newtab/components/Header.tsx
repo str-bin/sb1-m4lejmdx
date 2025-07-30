@@ -1,14 +1,15 @@
 import React from 'react'
 import { Plus, Moon, Sun, Settings } from 'lucide-react'
 import { useTheme } from 'next-themes'
-import { Button } from '~components/ui/button'
+import { Button } from '../../components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~components/ui/dropdown-menu'
-import { formatDate } from '~lib/utils'
+} from '../../components/ui/dropdown-menu'
+import { formatDate } from '../../lib/utils'
+import DataSourceToggle from './DataSourceToggle'
 
 interface HeaderProps {
   onAddBookmark: () => void
@@ -35,6 +36,8 @@ const Header: React.FC<HeaderProps> = ({ onAddBookmark }) => {
       </div>
 
       <div className="flex items-center space-x-3">
+        <DataSourceToggle />
+        
         <Button
           onClick={onAddBookmark}
           size="lg"

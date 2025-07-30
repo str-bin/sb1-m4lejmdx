@@ -7,7 +7,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '~components/ui/dialog'
+} from '../../components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -15,19 +15,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '~components/ui/form'
+} from '../../components/ui/form'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '~components/ui/select'
-import { Input } from '~components/ui/input'
-import { Button } from '~components/ui/button'
-import { useBookmarkStore } from '~store/bookmarkStore'
-import { isValidUrl } from '~lib/utils'
-import type { Bookmark } from '~types/bookmark'
+} from '../../components/ui/select'
+import { Input } from '../../components/ui/input'
+import { Button } from '../../components/ui/button'
+import { useBookmarkStore } from '../../store/bookmarkStore'
+import { isValidUrl } from '../../lib/utils'
+import type { Bookmark } from '../../types/bookmark'
 import { toast } from 'sonner'
 
 const formSchema = z.object({

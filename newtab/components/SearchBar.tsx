@@ -1,8 +1,8 @@
 import React from 'react'
 import { Search, X } from 'lucide-react'
-import { Input } from '~components/ui/input'
-import { Button } from '~components/ui/button'
-import { useBookmarkStore } from '~store/bookmarkStore'
+import { Input } from '../../components/ui/input'
+import { Button } from '../../components/ui/button'
+import { useBookmarkStore } from '../../store/bookmarkStore'
 
 const SearchBar: React.FC = () => {
   const { searchQuery, setSearchQuery } = useBookmarkStore()

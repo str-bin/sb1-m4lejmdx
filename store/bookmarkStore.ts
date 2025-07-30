@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Bookmark, BookmarkCategory, BookmarkStore } from '~types/bookmark'
-import { generateId } from '~lib/utils'
+import type { Bookmark, BookmarkCategory, BookmarkStore, DataSourceType } from '../types/bookmark'
+import { adapterFactory } from '../lib/adapters'
+import { toast } from 'sonner'
 
 const defaultCategories: BookmarkCategory[] = [
   { id: '1', name: '常用', color: '#3b82f6', icon: 'Star' },
@@ -9,63 +10,6 @@ const defaultCategories: BookmarkCategory[] = [
   { id: '3', name: '学习', color: '#10b981', icon: 'BookOpen' },
   { id: '4', name: '娱乐', color: '#f59e0b', icon: 'GamepadIcon' },
   { id: '5', name: '工具', color: '#8b5cf6', icon: 'Wrench' },
-]
-
-const defaultBookmarks: Bookmark[] = [
-  {
-    id: '1',
-    title: 'GitHub',
-    url: 'https://github.com',
-    category: '1',
-    tags: ['开发', '代码'],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '2',
-    title: 'Stack Overflow',
-    url: 'https://stackoverflow.com',
-    category: '2',
-    tags: ['编程', '问答'],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '3',
-    title: 'MDN Web Docs',
-    url: 'https://developer.mozilla.org',
-    category: '3',
-    tags: ['文档', 'Web开发'],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '4',
-    title: 'YouTube',
-    url: 'https://youtube.com',
-    category: '4',
-    tags: ['视频', '娱乐'],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '5',
-    title: 'Figma',
-    url: 'https://figma.com',
-    category: '5',
-    tags: ['设计', '工具'],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '6',
-    title: 'Twitter',
-    url: 'https://twitter.com',
-    category: '4',
-    tags: ['社交', '资讯'],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
 ]
 
 export const useBookmarkStore = create<BookmarkStore>()(
@@ -76,46 +20,79 @@ export const useBookmarkStore = create<BookmarkStore>()(
       searchQuery: '',
       selectedCategory: null,
       isLoading: false,
+      dataSource: 'indexeddb',
 
-      addBookmark: (bookmarkData) => {
-        const newBookmark: Bookmark = {
-          id: generateId(),
-          ...bookmarkData,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+      addBookmark: async (bookmarkData) => {
+        try {
+          set({ isLoading: true })
+          const adapter = await adapterFactory.getAdapter()
+          const newBookmark = await adapter.addBookmark(bookmarkData)
+          
+          set((state) => ({
+            bookmarks: [...state.bookmarks, newBookmark],
+            isLoading: false
+          }))
+          
+          toast.success(`已添加 "${newBookmark.title}"`)
+        } catch (error) {
+          set({ isLoading: false })
+          toast.error(`添加书签失败: ${error instanceof Error ? error.message : '未知错误'}`)
         }
-        set((state) => ({
-          bookmarks: [...state.bookmarks, newBookmark],
-        }))
-        get().saveToStorage()
       },
 
-      updateBookmark: (id, updates) => {
-        set((state) => ({
-          bookmarks: state.bookmarks.map(bookmark =>
-            bookmark.id === id
-              ? { ...bookmark, ...updates, updatedAt: new Date() }
-              : bookmark
-          ),
-        }))
-        get().saveToStorage()
+      updateBookmark: async (id, updates) => {
+        try {
+          set({ isLoading: true })
+          const adapter = await adapterFactory.getAdapter()
+          const updatedBookmark = await adapter.updateBookmark(id, updates)
+          
+          set((state) => ({
+            bookmarks: state.bookmarks.map(bookmark =>
+              bookmark.id === id ? updatedBookmark : bookmark
+            ),
+            isLoading: false
+          }))
+          
+          toast.success(`已更新 "${updatedBookmark.title}"`)
+        } catch (error) {
+          set({ isLoading: false })
+          toast.error(`更新书签失败: ${error instanceof Error ? error.message : '未知错误'}`)
+        }
       },
 
-      deleteBookmark: (id) => {
-        set((state) => ({
-          bookmarks: state.bookmarks.filter(bookmark => bookmark.id !== id),
-        }))
-        get().saveToStorage()
+      deleteBookmark: async (id) => {
+        try {
+          set({ isLoading: true })
+          const adapter = await adapterFactory.getAdapter()
+          await adapter.deleteBookmark(id)
+          
+          set((state) => ({
+            bookmarks: state.bookmarks.filter(bookmark => bookmark.id !== id),
+            isLoading: false
+          }))
+          
+          toast.success('书签已删除')
+        } catch (error) {
+          set({ isLoading: false })
+          toast.error(`删除书签失败: ${error instanceof Error ? error.message : '未知错误'}`)
+        }
       },
 
-      reorderBookmarks: (sourceIndex, destinationIndex) => {
-        set((state) => {
-          const newBookmarksArray = Array.from(state.bookmarks)
-          const [removed] = newBookmarksArray.splice(sourceIndex, 1)
-          newBookmarksArray.splice(destinationIndex, 0, removed)
-          return { bookmarks: newBookmarksArray }
-        })
-        get().saveToStorage()
+      reorderBookmarks: async (sourceIndex, destinationIndex) => {
+        try {
+          const adapter = await adapterFactory.getAdapter()
+          await adapter.reorderBookmarks(sourceIndex, destinationIndex)
+          
+          set((state) => {
+            const newBookmarks = [...state.bookmarks]
+            const [movedBookmark] = newBookmarks.splice(sourceIndex, 1)
+            newBookmarks.splice(destinationIndex, 0, movedBookmark)
+            return { bookmarks: newBookmarks }
+          })
+        } catch (error) {
+          console.warn('重排序失败:', error)
+          // 重排序失败不影响用户体验，只记录警告
+        }
       },
 
       setSearchQuery: (query) => {
@@ -126,55 +103,120 @@ export const useBookmarkStore = create<BookmarkStore>()(
         set({ selectedCategory: categoryId })
       },
 
-      addCategory: (categoryData) => {
-        const newCategory: BookmarkCategory = {
-          id: generateId(),
-          ...categoryData,
+      addCategory: async (categoryData) => {
+        try {
+          set({ isLoading: true })
+          const adapter = await adapterFactory.getAdapter()
+          const newCategory = await adapter.addCategory(categoryData)
+          
+          set((state) => ({
+            categories: [...state.categories, newCategory],
+            isLoading: false
+          }))
+          
+          toast.success(`已添加分类 "${newCategory.name}"`)
+        } catch (error) {
+          set({ isLoading: false })
+          toast.error(`添加分类失败: ${error instanceof Error ? error.message : '未知错误'}`)
         }
-        set((state) => ({
-          categories: [...state.categories, newCategory],
-        }))
-        get().saveToStorage()
       },
 
-      updateCategory: (id, updates) => {
-        set((state) => ({
-          categories: state.categories.map(category =>
-            category.id === id ? { ...category, ...updates } : category
-          ),
-        }))
-        get().saveToStorage()
+      updateCategory: async (id, updates) => {
+        try {
+          set({ isLoading: true })
+          const adapter = await adapterFactory.getAdapter()
+          const updatedCategory = await adapter.updateCategory(id, updates)
+          
+          set((state) => ({
+            categories: state.categories.map(category =>
+              category.id === id ? updatedCategory : category
+            ),
+            isLoading: false
+          }))
+          
+          toast.success(`已更新分类 "${updatedCategory.name}"`)
+        } catch (error) {
+          set({ isLoading: false })
+          toast.error(`更新分类失败: ${error instanceof Error ? error.message : '未知错误'}`)
+        }
       },
 
-      deleteCategory: (id) => {
-        set((state) => ({
-          categories: state.categories.filter(category => category.id !== id),
-          bookmarks: state.bookmarks.map(bookmark =>
-            bookmark.category === id ? { ...bookmark, category: undefined } : bookmark
-          ),
-        }))
-        get().saveToStorage()
+      deleteCategory: async (id) => {
+        try {
+          set({ isLoading: true })
+          const adapter = await adapterFactory.getAdapter()
+          await adapter.deleteCategory(id)
+          
+          set((state) => ({
+            categories: state.categories.filter(category => category.id !== id),
+            isLoading: false
+          }))
+          
+          toast.success('分类已删除')
+        } catch (error) {
+          set({ isLoading: false })
+          toast.error(`删除分类失败: ${error instanceof Error ? error.message : '未知错误'}`)
+        }
       },
 
       initializeBookmarks: async () => {
-        set({ isLoading: true })
-        
-        // 如果没有书签数据，使用默认数据
-        const { bookmarks } = get()
-        if (bookmarks.length === 0) {
-          set({ bookmarks: defaultBookmarks })
+        try {
+          set({ isLoading: true })
+          const adapter = await adapterFactory.getAdapter()
+          
+          const [bookmarks, categories] = await Promise.all([
+            adapter.getBookmarks(),
+            adapter.getCategories()
+          ])
+          
+          set({
+            bookmarks,
+            categories: categories.length > 0 ? categories : defaultCategories,
+            isLoading: false
+          })
+        } catch (error) {
+          set({ isLoading: false })
+          console.error('初始化书签失败:', error)
+          toast.error('初始化书签失败，请刷新页面重试')
         }
-        
-        set({ isLoading: false })
       },
 
       saveToStorage: async () => {
-        // Zustand persist 中间件会自动处理存储
+        // 数据通过适配器自动保存，这里不需要额外操作
+        return Promise.resolve()
       },
+
+      switchDataSource: async (type) => {
+        try {
+          set({ isLoading: true })
+          const adapter = await adapterFactory.switchAdapter(type)
+          
+          const [bookmarks, categories] = await Promise.all([
+            adapter.getBookmarks(),
+            adapter.getCategories()
+          ])
+          
+          set({
+            bookmarks,
+            categories: categories.length > 0 ? categories : defaultCategories,
+            dataSource: type,
+            isLoading: false
+          })
+          
+          toast.success(`已切换到${type === 'browser' ? '浏览器书签' : '本地存储'}模式`)
+        } catch (error) {
+          set({ isLoading: false })
+          toast.error(`切换数据源失败: ${error instanceof Error ? error.message : '未知错误'}`)
+        }
+      }
     }),
     {
-      name: 'bookmark-storage',
-      version: 1,
+      name: 'smart-newtab-store',
+      partialize: (state) => ({
+        searchQuery: state.searchQuery,
+        selectedCategory: state.selectedCategory,
+        dataSource: state.dataSource
+      })
     }
   )
 )

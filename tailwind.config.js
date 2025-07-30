@@ -2,7 +2,11 @@
 module.exports = {
   mode: "jit",
   darkMode: "class",
-  content: ["./**/*.{ts,tsx}"],
+  content: [
+    "./**/*.{ts,tsx}",
+    "!./node_modules/**",
+    "!./.plasmo/**"
+  ],
   theme: {
     extend: {
       colors: {

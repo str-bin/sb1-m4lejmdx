@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd'
 import Header from './components/Header'
 import SearchBar from './components/SearchBar'
 import CategoryFilter from './components/CategoryFilter'
 import BookmarkGrid from './components/BookmarkGrid'
 import AddBookmarkDialog from './components/AddBookmarkDialog'
-import { useBookmarkStore } from '~store/bookmarkStore'
+import { useBookmarkStore } from '../store/bookmarkStore'
 import { useTheme } from 'next-themes'
 
 const NewTabPage: React.FC = () => {
@@ -17,7 +17,13 @@ const NewTabPage: React.FC = () => {
     searchQuery,
     selectedCategory,
     reorderBookmarks,
+    initializeBookmarks,
   } = useBookmarkStore()
+
+  // 初始化数据
+  useEffect(() => {
+    initializeBookmarks()
+  }, [initializeBookmarks])
 
   // 过滤书签
   const filteredBookmarks = bookmarks.filter(bookmark => {

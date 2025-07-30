@@ -5,13 +5,31 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export function generateId(): string {
+  return Math.random().toString(36).substr(2, 9)
+}
+
 export function getFaviconUrl(url: string): string {
   try {
-    const domain = new URL(url)
-    return `https://www.google.com/s2/favicons?domain=${domain.hostname}&sz=32`
+    const urlObj = new URL(url)
+    return `${urlObj.protocol}//${urlObj.hostname}/favicon.ico`
   } catch {
-    return 'https://www.google.com/s2/favicons?domain=example.com&sz=32'
+    return ''
   }
+}
+
+// 环境检测
+export function isBrowserExtension(): boolean {
+  return typeof chrome !== 'undefined' && !!chrome.runtime && !!chrome.runtime.id
+}
+
+export function isWebApp(): boolean {
+  return !isBrowserExtension()
+}
+
+// 获取推荐的数据源类型
+export function getRecommendedDataSource(): 'indexeddb' | 'browser' {
+  return isBrowserExtension() ? 'browser' : 'indexeddb'
 }
 
 export function formatDate(date: Date): string {
@@ -22,10 +40,6 @@ export function formatDate(date: Date): string {
     hour: '2-digit',
     minute: '2-digit'
   }).format(date)
-}
-
-export function generateId(): string {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2)
 }
 
 export function isValidUrl(string: string): boolean {
