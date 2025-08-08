@@ -1,6 +1,6 @@
 
 import { Bookmark } from '../../types/bookmark'
-import { Folder, Home } from 'lucide-react'
+import { Folder } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
 interface FolderSidebarProps {
@@ -51,20 +51,6 @@ export function FolderSidebar({ folders, currentFolder, onFolderSelect }: Folder
       <div className="p-4">
         <h2 className="text-lg font-semibold text-white mb-4">文件夹</h2>
         
-        {/* 根目录 */}
-        <button
-          onClick={() => onFolderSelect(null)}
-          className={cn(
-            "w-full flex items-center space-x-2 px-3 py-2 text-left text-sm rounded-md transition-colors mb-2",
-            "hover:bg-white/20",
-            currentFolder === null && "bg-white/30 text-white border-r-2 border-blue-400",
-            currentFolder !== null && "text-white/80"
-          )}
-        >
-          <Home className="w-4 h-4 flex-shrink-0" />
-          <span>主页</span>
-        </button>
-
         {/* 文件夹树 */}
         <div className="space-y-1">
           {folderTree.map(folder => renderFolderItem(folder))}
