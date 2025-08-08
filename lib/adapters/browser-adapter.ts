@@ -2,8 +2,8 @@ import type {
   Bookmark,
   BookmarkCategory,
   BookmarkDataAdapter,
-} from "../types/bookmark";
-import { generateId } from "../lib/utils";
+} from "../../types/bookmark";
+import { generateId } from "../utils";
 
 export class BrowserAdapter implements BookmarkDataAdapter {
   type = "browser" as const;
@@ -27,8 +27,25 @@ export class BrowserAdapter implements BookmarkDataAdapter {
 
         const bookmarks: Bookmark[] = [];
         this.extractBookmarks(bookmarkTreeNodes, bookmarks);
-        resolve(bookmarks);
+        
+        // 清理空文件夹和不必要的层级
+        const cleanedBookmarks = this.cleanBookmarks(bookmarks);
+        resolve(cleanedBookmarks);
       });
+    });
+  }
+
+  private cleanBookmarks(bookmarks: Bookmark[]): Bookmark[] {
+    return bookmarks.filter(bookmark => {
+      if (bookmark.isFolder) {
+        // 递归清理子项目
+        if (bookmark.children) {
+          bookmark.children = this.cleanBookmarks(bookmark.children);
+        }
+        // 只保留有子项目的文件夹
+        return bookmark.children && bookmark.children.length > 0;
+      }
+      return true; // 保留所有书签
     });
   }
 
@@ -37,6 +54,24 @@ export class BrowserAdapter implements BookmarkDataAdapter {
     result: Bookmark[]
   ): void {
     for (const node of nodes) {
+      // 跳过根节点和系统文件夹
+      if (node.id === '0' || node.id === '1') {
+        // 根节点 (0) 和书签栏 (1) 跳过，直接处理其子节点
+        if (node.children) {
+          this.extractBookmarks(node.children, result);
+        }
+        continue;
+      }
+
+      // 跳过系统文件夹名称
+      const systemFolderNames = ['书签栏', '其他书签', 'Bookmarks Bar', 'Other Bookmarks'];
+      if (systemFolderNames.includes(node.title)) {
+        if (node.children) {
+          this.extractBookmarks(node.children, result);
+        }
+        continue;
+      }
+
       if (node.url) {
         // 这是一个书签
         result.push({
@@ -50,9 +85,26 @@ export class BrowserAdapter implements BookmarkDataAdapter {
           updatedAt: new Date(node.dateAdded || Date.now()),
           isFolder: false,
         });
-      } else if (node.children) {
-        // 这是一个文件夹，递归处理子项
-        this.extractBookmarks(node.children, result);
+      } else if (node.children && node.children.length > 0) {
+        // 这是一个文件夹，只有当它有子项目时才创建
+        const folderBookmarks: Bookmark[] = [];
+        this.extractBookmarks(node.children, folderBookmarks);
+        
+        // 只有当文件夹包含有意义的书签时才添加
+        if (folderBookmarks.length > 0) {
+          result.push({
+            id: node.id,
+            title: node.title,
+            url: '', // 文件夹没有 URL
+            favicon: undefined,
+            category: undefined,
+            tags: [],
+            createdAt: new Date(node.dateAdded || Date.now()),
+            updatedAt: new Date(node.dateAdded || Date.now()),
+            isFolder: true,
+            children: folderBookmarks,
+          });
+        }
       }
     }
   }
@@ -135,13 +187,38 @@ export class BrowserAdapter implements BookmarkDataAdapter {
     }
 
     return new Promise((resolve, reject) => {
-      chrome.bookmarks.create(
-        {
-          title: bookmarkData.title,
-          url: bookmarkData.url,
-          parentId: "1", // 添加到书签栏
-        },
-        (bookmark) => {
+      const createData: chrome.bookmarks.BookmarkCreateArg = {
+        title: bookmarkData.title,
+        parentId: "1", // 添加到书签栏
+      };
+
+      if (bookmarkData.isFolder) {
+        // 创建文件夹
+        chrome.bookmarks.create(createData, (bookmark) => {
+          if (chrome.runtime.lastError) {
+            reject(new Error(chrome.runtime.lastError.message));
+            return;
+          }
+
+          const newFolder: Bookmark = {
+            id: bookmark.id,
+            title: bookmark.title,
+            url: "",
+            favicon: undefined,
+            category: bookmarkData.category,
+            tags: bookmarkData.tags || [],
+            createdAt: new Date(bookmark.dateAdded || Date.now()),
+            updatedAt: new Date(bookmark.dateAdded || Date.now()),
+            isFolder: true,
+            children: bookmarkData.children || [],
+          };
+
+          resolve(newFolder);
+        });
+      } else {
+        // 创建书签
+        createData.url = bookmarkData.url;
+        chrome.bookmarks.create(createData, (bookmark) => {
           if (chrome.runtime.lastError) {
             reject(new Error(chrome.runtime.lastError.message));
             return;
@@ -155,15 +232,15 @@ export class BrowserAdapter implements BookmarkDataAdapter {
               ? `chrome://favicon/${bookmark.url}`
               : undefined,
             category: bookmarkData.category,
-            tags: bookmarkData.tags,
+            tags: bookmarkData.tags || [],
             createdAt: new Date(bookmark.dateAdded || Date.now()),
             updatedAt: new Date(bookmark.dateAdded || Date.now()),
             isFolder: false,
           };
 
           resolve(newBookmark);
-        }
-      );
+        });
+      }
     });
   }
 
@@ -178,7 +255,7 @@ export class BrowserAdapter implements BookmarkDataAdapter {
     return new Promise((resolve, reject) => {
       const updateData: chrome.bookmarks.BookmarkChangesArg = {};
       if (updates.title) updateData.title = updates.title;
-      if (updates.url) updateData.url = updates.url;
+      if (updates.url && !updates.isFolder) updateData.url = updates.url;
 
       chrome.bookmarks.update(id, updateData, (bookmark) => {
         if (chrome.runtime.lastError) {
@@ -194,10 +271,11 @@ export class BrowserAdapter implements BookmarkDataAdapter {
             ? `chrome://favicon/${bookmark.url}`
             : undefined,
           category: updates.category,
-          tags: updates.tags,
+          tags: updates.tags || [],
           createdAt: new Date(bookmark.dateAdded || Date.now()),
           updatedAt: new Date(),
-          isFolder: false,
+          isFolder: updates.isFolder || false,
+          children: updates.children || [],
         };
 
         resolve(updatedBookmark);

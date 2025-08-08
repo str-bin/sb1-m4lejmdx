@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { Folder, Link } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -29,13 +30,28 @@ import { useBookmarkStore } from '../../store/bookmarkStore'
 import { isValidUrl } from '../../lib/utils'
 import { toast } from 'sonner'
 
-const formSchema = z.object({
-  title: z.string().min(1, '请输入标题'),
-  url: z.string().min(1, '请输入URL').refine(isValidUrl, '请输入有效的URL'),
-  category: z.string().optional(),
-})
+// 动态表单 schema
+const createFormSchema = (isFolder: boolean) => {
+  const baseSchema = {
+    title: z.string().min(1, '请输入标题'),
+    category: z.string().optional(),
+  }
 
-type FormData = z.infer<typeof formSchema>
+  if (isFolder) {
+    return z.object(baseSchema)
+  } else {
+    return z.object({
+      ...baseSchema,
+      url: z.string().min(1, '请输入URL').refine(isValidUrl, '请输入有效的URL'),
+    })
+  }
+}
+
+type FormData = {
+  title: string
+  url?: string
+  category?: string
+}
 
 interface AddBookmarkDialogProps {
   open: boolean
@@ -46,10 +62,11 @@ const AddBookmarkDialog: React.FC<AddBookmarkDialogProps> = ({
   open,
   onOpenChange,
 }) => {
+  const [isFolder, setIsFolder] = useState(false)
   const { addBookmark, categories } = useBookmarkStore()
   
   const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(createFormSchema(isFolder)),
     defaultValues: {
       title: '',
       url: '',
@@ -58,20 +75,34 @@ const AddBookmarkDialog: React.FC<AddBookmarkDialogProps> = ({
   })
 
   const onSubmit = (data: FormData) => {
-    addBookmark({
-      title: data.title,
-      url: data.url,
-      category: data.category || undefined,
-      tags: [],
-    })
+    if (isFolder) {
+      addBookmark({
+        title: data.title,
+        url: '', // 文件夹不需要 URL
+        category: data.category || undefined,
+        tags: [],
+        isFolder: true,
+        children: [],
+      })
+      toast.success(`已创建文件夹 "${data.title}"`)
+    } else {
+      addBookmark({
+        title: data.title,
+        url: data.url!,
+        category: data.category || undefined,
+        tags: [],
+        isFolder: false,
+      })
+      toast.success(`已添加书签 "${data.title}"`)
+    }
     
-    toast.success(`已添加书签 "${data.title}"`)
     form.reset()
+    setIsFolder(false)
     onOpenChange(false)
   }
 
   const handleUrlBlur = async (url: string) => {
-    if (!url || !isValidUrl(url)) return
+    if (!url || !isValidUrl(url) || isFolder) return
 
     try {
       // 尝试获取页面标题
@@ -89,32 +120,65 @@ const AddBookmarkDialog: React.FC<AddBookmarkDialogProps> = ({
     }
   }
 
+  const handleTypeChange = (newIsFolder: boolean) => {
+    setIsFolder(newIsFolder)
+    form.reset()
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>添加新书签</DialogTitle>
+          <DialogTitle>
+            {isFolder ? '创建新文件夹' : '添加新书签'}
+          </DialogTitle>
         </DialogHeader>
+        
+        {/* 类型切换 */}
+        <div className="flex space-x-2 p-2 bg-muted rounded-lg">
+          <Button
+            type="button"
+            variant={!isFolder ? "default" : "ghost"}
+            size="sm"
+            className="flex-1"
+            onClick={() => handleTypeChange(false)}
+          >
+            <Link className="w-4 h-4 mr-2" />
+            书签
+          </Button>
+          <Button
+            type="button"
+            variant={isFolder ? "default" : "ghost"}
+            size="sm"
+            className="flex-1"
+            onClick={() => handleTypeChange(true)}
+          >
+            <Folder className="w-4 h-4 mr-2" />
+            文件夹
+          </Button>
+        </div>
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="url"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>网址</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="https://example.com"
-                      {...field}
-                      onBlur={(e) => handleUrlBlur(e.target.value)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {!isFolder && (
+              <FormField
+                control={form.control}
+                name="url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>网址</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="https://example.com"
+                        {...field}
+                        onBlur={(e) => handleUrlBlur(e.target.value)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             <FormField
               control={form.control}
@@ -123,7 +187,10 @@ const AddBookmarkDialog: React.FC<AddBookmarkDialogProps> = ({
                 <FormItem>
                   <FormLabel>标题</FormLabel>
                   <FormControl>
-                    <Input placeholder="书签标题" {...field} />
+                    <Input 
+                      placeholder={isFolder ? "文件夹名称" : "书签标题"} 
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -171,7 +238,7 @@ const AddBookmarkDialog: React.FC<AddBookmarkDialogProps> = ({
                 取消
               </Button>
               <Button type="submit" className="flex-1">
-                添加书签
+                {isFolder ? '创建文件夹' : '添加书签'}
               </Button>
             </div>
           </form>

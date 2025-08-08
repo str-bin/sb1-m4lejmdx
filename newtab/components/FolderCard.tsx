@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { MoreVertical, Edit, Trash2, ExternalLink, Copy } from 'lucide-react'
+import { ChevronRight, Folder, MoreVertical, Edit, Trash2 } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,41 +9,48 @@ import {
 import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
 import { useBookmarkStore } from '../../store/bookmarkStore'
-import { getFaviconUrl } from '../../lib/utils'
 import type { Bookmark } from '../../types/bookmark'
 import { toast } from 'sonner'
 import EditBookmarkDialog from './EditBookmarkDialog'
 
-interface BookmarkCardProps {
-  bookmark: Bookmark
+interface FolderCardProps {
+  folder: Bookmark
+  level?: number
+  onNavigate?: (folderId: string) => void
 }
 
-const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark }) => {
+const FolderCard: React.FC<FolderCardProps> = ({ folder, level = 0, onNavigate }) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const { deleteBookmark, categories } = useBookmarkStore()
 
-  const category = categories.find(cat => cat.id === bookmark.category)
-  const faviconUrl = getFaviconUrl(bookmark.url)
-
-  const handleClick = () => {
-    window.open(bookmark.url, '_blank')
+  // 处理文件夹点击 - 导航到文件夹内部
+  const handleFolderClick = () => {
+    if (onNavigate) {
+      onNavigate(folder.id)
+    }
   }
+
+  const category = categories.find(cat => cat.id === folder.category)
+  const hasChildren = folder.children && folder.children.length > 0
+
+  // 调试信息
+  console.log('Folder:', folder.title, 'hasChildren:', hasChildren, 'children:', folder.children)
 
   const handleDelete = () => {
-    deleteBookmark(bookmark.id)
-    toast.success(`已删除 "${bookmark.title}"`)
-  }
-
-  const handleCopyUrl = () => {
-    navigator.clipboard.writeText(bookmark.url)
-    toast.success('链接已复制到剪贴板')
+    deleteBookmark(folder.id)
+    toast.success(`已删除文件夹 "${folder.title}"`)
   }
 
   return (
-    <>
+    <div className={`folder-container relative ${level > 0 ? 'ml-4' : ''}`}>
+      {/* 层级连接线 */}
+      {level > 0 && (
+        <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent" />
+      )}
+      
       <div className="group relative max-w-full" style={{ position: 'relative' }}>
         <div
-          onClick={handleClick}
+          onClick={handleFolderClick}
           className="glass rounded-lg p-2 cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl border border-white/20 backdrop-blur-sm h-8 flex items-center"
           style={{ 
             position: 'relative',
@@ -51,23 +58,15 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark }) => {
             opacity: 1
           }}
         >
-          {/* 网站图标 */}
-          <div className="w-5 h-5 rounded-md bg-white/10 flex items-center justify-center overflow-hidden flex-shrink-0 mr-2">
-            <img
-              src={faviconUrl}
-              alt={bookmark.title}
-              className="w-3 h-3"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement
-                target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiByeD0iNCIgZmlsbD0iIzY2NjY2NiIvPgo8dGV4dCB4PSIxMCIgeT0iMTQiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPj88L3RleHQ+Cjwvc3ZnPgo='
-              }}
-            />
+          {/* 文件夹图标 */}
+          <div className="w-5 h-5 rounded-md bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center overflow-hidden folder-icon flex-shrink-0 mr-2">
+            <Folder className="w-3 h-3 text-white" />
           </div>
 
-          {/* 标题和分类标签 */}
+          {/* 标题和展开指示器 */}
           <div className="flex items-center justify-between flex-1 min-w-0">
             <h3 className="font-semibold text-sm line-clamp-1 flex-1">
-              {bookmark.title}
+              {folder.title}
             </h3>
             <div className="flex items-center space-x-1 ml-2">
               {category && (
@@ -79,11 +78,15 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark }) => {
                   {category.name}
                 </Badge>
               )}
-              <span className="text-xs text-muted-foreground truncate max-w-32">
-                {new URL(bookmark.url).hostname}
+              <span className="text-xs text-muted-foreground">
+                {hasChildren ? `${folder.children!.length}` : '0'}
               </span>
+              <ChevronRight className="w-3 h-3 text-muted-foreground" />
             </div>
           </div>
+
+          {/* 悬停指示器 */}
+          <div className="absolute inset-0 rounded-lg border-2 border-transparent group-hover:border-white/20 transition-colors pointer-events-none" />
         </div>
 
         {/* 操作菜单 */}
@@ -100,37 +103,31 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark }) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={handleClick}>
-                <ExternalLink className="mr-2 h-4 w-4" />
-                打开链接
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleCopyUrl}>
-                <Copy className="mr-2 h-4 w-4" />
-                复制链接
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
                 <Edit className="mr-2 h-4 w-4" />
-                编辑
+                编辑文件夹
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={handleDelete}
                 className="text-destructive focus:text-destructive"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
-                删除
+                删除文件夹
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
 
+
+
       <EditBookmarkDialog
-        bookmark={bookmark}
+        bookmark={folder}
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
       />
-    </>
+    </div>
   )
 }
 
-export default BookmarkCard
+export default FolderCard 

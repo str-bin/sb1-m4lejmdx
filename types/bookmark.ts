@@ -41,8 +41,6 @@ export interface BookmarkDataAdapter {
 export interface BookmarkStore {
   bookmarks: Bookmark[]
   categories: BookmarkCategory[]
-  searchQuery: string
-  selectedCategory: string | null
   isLoading: boolean
   dataSource: DataSourceType
   
@@ -51,12 +49,13 @@ export interface BookmarkStore {
   updateBookmark: (id: string, updates: Partial<Bookmark>) => void
   deleteBookmark: (id: string) => void
   reorderBookmarks: (sourceIndex: number, destinationIndex: number) => void
-  setSearchQuery: (query: string) => void
-  setSelectedCategory: (categoryId: string | null) => void
+  moveBookmark: (draggedId: string, sourcePath: string[], destPath: string[], sourceIndex: number, destIndex: number) => void
   addCategory: (category: Omit<BookmarkCategory, 'id'>) => void
   updateCategory: (id: string, updates: Partial<BookmarkCategory>) => void
   deleteCategory: (id: string) => void
   initializeBookmarks: () => Promise<void>
   saveToStorage: () => Promise<void>
   switchDataSource: (type: DataSourceType) => Promise<void>
+  findBookmarkById: (bookmarks: Bookmark[], id: string) => Bookmark | null
+  getBookmarksByPath: (bookmarks: Bookmark[], path: string[]) => Bookmark[] | null
 }

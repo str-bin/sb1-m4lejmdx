@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { Folder, Link } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -30,13 +31,28 @@ import { isValidUrl } from '../../lib/utils'
 import type { Bookmark } from '../../types/bookmark'
 import { toast } from 'sonner'
 
-const formSchema = z.object({
-  title: z.string().min(1, '请输入标题'),
-  url: z.string().min(1, '请输入URL').refine(isValidUrl, '请输入有效的URL'),
-  category: z.string().optional(),
-})
+// 动态表单 schema
+const createFormSchema = (isFolder: boolean) => {
+  const baseSchema = {
+    title: z.string().min(1, '请输入标题'),
+    category: z.string().optional(),
+  }
 
-type FormData = z.infer<typeof formSchema>
+  if (isFolder) {
+    return z.object(baseSchema)
+  } else {
+    return z.object({
+      ...baseSchema,
+      url: z.string().min(1, '请输入URL').refine(isValidUrl, '请输入有效的URL'),
+    })
+  }
+}
+
+type FormData = {
+  title: string
+  url?: string
+  category?: string
+}
 
 interface EditBookmarkDialogProps {
   bookmark: Bookmark
@@ -50,9 +66,10 @@ const EditBookmarkDialog: React.FC<EditBookmarkDialogProps> = ({
   onOpenChange,
 }) => {
   const { updateBookmark, categories } = useBookmarkStore()
+  const isFolder = bookmark.isFolder || false
   
   const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(createFormSchema(isFolder)),
     defaultValues: {
       title: bookmark.title,
       url: bookmark.url,
@@ -71,13 +88,18 @@ const EditBookmarkDialog: React.FC<EditBookmarkDialogProps> = ({
   }, [bookmark, open, form])
 
   const onSubmit = (data: FormData) => {
-    updateBookmark(bookmark.id, {
+    const updates: Partial<Bookmark> = {
       title: data.title,
-      url: data.url,
       category: data.category || undefined,
-    })
+    }
+
+    if (!isFolder) {
+      updates.url = data.url!
+    }
+
+    updateBookmark(bookmark.id, updates)
     
-    toast.success(`已更新书签 "${data.title}"`)
+    toast.success(`已更新${isFolder ? '文件夹' : '书签'} "${data.title}"`)
     onOpenChange(false)
   }
 
@@ -85,8 +107,25 @@ const EditBookmarkDialog: React.FC<EditBookmarkDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>编辑书签</DialogTitle>
+          <DialogTitle>
+            {isFolder ? '编辑文件夹' : '编辑书签'}
+          </DialogTitle>
         </DialogHeader>
+        
+        {/* 类型指示器 */}
+        <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg">
+          {isFolder ? (
+            <>
+              <Folder className="w-4 h-4 text-yellow-500" />
+              <span className="text-sm font-medium">文件夹</span>
+            </>
+          ) : (
+            <>
+              <Link className="w-4 h-4 text-blue-500" />
+              <span className="text-sm font-medium">书签</span>
+            </>
+          )}
+        </div>
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -97,26 +136,31 @@ const EditBookmarkDialog: React.FC<EditBookmarkDialogProps> = ({
                 <FormItem>
                   <FormLabel>标题</FormLabel>
                   <FormControl>
-                    <Input placeholder="书签标题" {...field} />
+                    <Input 
+                      placeholder={isFolder ? "文件夹名称" : "书签标题"} 
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="url"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>网址</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://example.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {!isFolder && (
+              <FormField
+                control={form.control}
+                name="url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>网址</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             <FormField
               control={form.control}

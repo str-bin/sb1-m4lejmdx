@@ -38,7 +38,7 @@ const DataSourceToggle: React.FC = () => {
         size="sm"
         onClick={() => handleSwitch('indexeddb')}
         disabled={isLoading}
-        className="h-8"
+        className="h-7 text-xs"
       >
         <Database className="w-3 h-3 mr-1" />
         本地存储
@@ -49,7 +49,7 @@ const DataSourceToggle: React.FC = () => {
         size="sm"
         onClick={() => handleSwitch('browser')}
         disabled={isLoading}
-        className="h-8"
+        className="h-7 text-xs"
       >
         <Bookmark className="w-3 h-3 mr-1" />
         浏览器书签

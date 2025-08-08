@@ -74,11 +74,64 @@
 
 /* 拖拽时的样式 */
 .bookmark-dragging {
-  @apply opacity-50 scale-105 rotate-2;
+  @apply opacity-90 shadow-2xl;
+  transform: rotate(0deg) scale(1.02);
+  z-index: 9999;
+  position: relative;
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid rgba(59, 130, 246, 0.5);
+}
+
+.dark .bookmark-dragging {
+  background: rgba(30, 41, 59, 0.95);
+  border: 2px solid rgba(59, 130, 246, 0.5);
 }
 
 .bookmark-drop-zone {
   @apply ring-2 ring-primary ring-opacity-50 bg-primary/5;
+}
+
+/* 拖拽时的容器样式 */
+.dragging-container {
+  position: relative;
+}
+
+/* 确保拖拽元素正确定位 */
+[data-rbd-draggable-context-id] {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+/* 拖拽时的占位符样式 */
+[data-rbd-placeholder-context-id] {
+  min-height: 32px;
+  margin: 2px 0;
+  transition: all 0.2s ease;
+  background: rgba(59, 130, 246, 0.1);
+  border: 2px dashed rgba(59, 130, 246, 0.3);
+  border-radius: 8px;
+}
+
+/* 拖拽时的精确定位 */
+[data-rbd-draggable-context-id][data-rbd-dragging="true"] {
+  position: fixed !important;
+  z-index: 9999;
+  pointer-events: none;
+  transform-origin: 0 0;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* 确保拖拽时的父容器不会影响定位 */
+.dragging-container [data-rbd-draggable-context-id] {
+  position: relative;
+  transform: none;
+}
+
+/* 防止拖拽时元素被隐藏 */
+.bookmark-dragging * {
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 /* 渐变背景 */
@@ -100,4 +153,64 @@
 .dark .glass {
   background-color: rgba(45, 55, 72, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.125);
+}
+
+/* 文件夹容器样式 */
+.folder-container {
+  position: relative;
+}
+
+/* 层级连接线样式 */
+.folder-container::before {
+  content: '';
+  position: absolute;
+  left: -0.5rem;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.15) 20%, 
+    rgba(255, 255, 255, 0.15) 80%, 
+    transparent 100%
+  );
+  z-index: 1;
+}
+
+/* 深色模式下的层级连接线 */
+.dark .folder-container::before {
+  background: linear-gradient(to bottom, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.1) 20%, 
+    rgba(255, 255, 255, 0.1) 80%, 
+    transparent 100%
+  );
+}
+
+/* 文件夹展开动画 */
+.folder-expand {
+  animation: folderExpand 0.2s ease-out;
+  overflow: hidden;
+}
+
+@keyframes folderExpand {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+    max-width: 0;
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+    max-width: 100%;
+  }
+}
+
+/* 文件夹图标动画 */
+.folder-icon {
+  transition: transform 0.2s ease;
+}
+
+.folder-icon:hover {
+  transform: scale(1.1);
 }
