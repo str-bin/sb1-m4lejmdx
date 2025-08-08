@@ -159,7 +159,7 @@ const NewTabPage: React.FC = () => {
             {/* 书签网格 - 主体内容区域 */}
             <div className="h-[calc(100vh-200px)] overflow-y-auto">
               <DragDropContext onDragEnd={handleDragEnd}>
-                <div className="transition-all duration-200 rounded-2xl p-8 shadow-xl glass min-h-full">
+                <div className="min-h-full">
                   <BookmarkGrid 
                     bookmarks={getCurrentBookmarks()} 
                     onFolderNavigate={handleFolderNavigate}
@@ -173,10 +173,10 @@ const NewTabPage: React.FC = () => {
               <div className="text-center py-12">
                 <div className="glass rounded-2xl p-8 inline-block shadow-lg">
                   <div className="text-4xl mb-3">📚</div>
-                  <h3 className="text-lg font-semibold mb-2">
+                  <h3 className="text-lg font-semibold mb-2 text-white">
                     {currentFolder ? '此文件夹为空' : '还没有书签或文件夹'}
                   </h3>
-                  <p className="text-muted-foreground mb-4 text-sm">
+                  <p className="text-white/60 mb-4 text-sm">
                     {currentFolder 
                       ? '这个文件夹中还没有任何内容'
                       : '点击右上角的 + 按钮添加您的第一个书签或文件夹'
@@ -184,7 +184,7 @@ const NewTabPage: React.FC = () => {
                   </p>
                   <button
                     onClick={() => setIsAddDialogOpen(true)}
-                    className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:scale-105 transition-transform text-sm"
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg hover:scale-105 transition-all text-sm"
                   >
                     添加项目
                   </button>
