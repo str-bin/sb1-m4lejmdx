@@ -44,15 +44,15 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark }) => {
       <div className="group relative">
         <div
           onClick={handleClick}
-          className="glass rounded-xl p-4 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border border-white/20 backdrop-blur-sm min-h-[120px] flex flex-col justify-between"
+          className="glass rounded-lg p-3 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border border-white/20 backdrop-blur-sm min-h-[90px] flex flex-col justify-between"
         >
           {/* 顶部：网站图标和域名 */}
-          <div className="flex items-center space-x-3 mb-3">
-            <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
+          <div className="flex items-center space-x-2 mb-2">
+            <div className="w-6 h-6 rounded-md bg-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
               <img
                 src={faviconUrl}
                 alt={bookmark.title}
-                className="w-5 h-5"
+                className="w-4 h-4"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement
                   target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiByeD0iNCIgZmlsbD0iIzY2NjY2NiIvPgo8dGV4dCB4PSIxMCIgeT0iMTQiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPj88L3RleHQ+Cjwvc3ZnPgo='
@@ -68,17 +68,17 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark }) => {
 
           {/* 中间：标题 */}
           <div className="flex-1 flex items-center">
-            <h3 className="font-semibold text-base text-white leading-tight line-clamp-2">
+            <h3 className="font-medium text-sm text-white leading-tight line-clamp-2">
               {bookmark.title}
             </h3>
           </div>
 
           {/* 底部：分类标签 */}
-          <div className="flex items-center justify-between mt-3">
+          <div className="flex items-center justify-between mt-2">
             {category ? (
               <Badge
                 variant="secondary"
-                className="text-xs px-2 py-1 rounded-full"
+                className="text-xs px-1.5 py-0.5 rounded-full"
                 style={{ backgroundColor: `${category.color}20`, color: category.color }}
               >
                 {category.name}
@@ -88,22 +88,22 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark }) => {
             )}
             
             <div className="text-xs text-white/40">
-              {new Date(bookmark.createdAt).toLocaleDateString('zh-CN')}
+              {new Date(bookmark.createdAt).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })}
             </div>
           </div>
         </div>
 
         {/* 操作菜单 */}
-        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <div className="absolute top-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="secondary"
                 size="icon"
-                className="h-8 w-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 bg-white/20 backdrop-blur-sm border border-white/30"
+                className="h-6 w-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 bg-white/20 backdrop-blur-sm border border-white/30"
                 onClick={(e) => e.stopPropagation()}
               >
-                <MoreVertical className="h-4 w-4 text-white" />
+                <MoreVertical className="h-3 w-3 text-white" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">

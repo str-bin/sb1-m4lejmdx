@@ -25,14 +25,14 @@ const BookmarkGrid: React.FC<BookmarkGridProps> = ({ bookmarks, level = 0, path 
         <div
           ref={provided.innerRef}
           {...provided.droppableProps}
-          className={`space-y-6 ${level > 0 ? 'min-w-0' : ''} ${
+          className={`space-y-4 ${level > 0 ? 'min-w-0' : ''} ${
             snapshot.isDraggingOver ? 'bg-blue-50/20 rounded-lg' : ''
           } dragging-container`}
           style={{ position: 'relative' }}
         >
           {/* 渲染文件夹 */}
           {folders.length > 0 && (
-            <div className="space-y-6">
+            <div className="space-y-4">
               {folders.map((folder, index) => (
                 <Draggable key={folder.id} draggableId={folder.id} index={index}>
                   {(provided, snapshot) => (
@@ -59,8 +59,8 @@ const BookmarkGrid: React.FC<BookmarkGridProps> = ({ bookmarks, level = 0, path 
 
           {/* 渲染普通书签 */}
           {regularBookmarks.length > 0 && (
-            <div className={folders.length > 0 ? 'mt-6' : ''}>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className={folders.length > 0 ? 'mt-4' : ''}>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                 {regularBookmarks.map((bookmark, index) => (
                   <Draggable key={bookmark.id} draggableId={bookmark.id} index={folders.length + index}>
                     {(provided, snapshot) => (

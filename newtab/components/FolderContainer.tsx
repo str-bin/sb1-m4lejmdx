@@ -49,47 +49,47 @@ const FolderContainer: React.FC<FolderContainerProps> = ({ folder, onFolderNavig
     <>
       <div className="group relative">
         {/* 文件夹大框 */}
-        <div className="glass rounded-xl border border-white/20 backdrop-blur-sm overflow-hidden">
+        <div className="glass rounded-lg border border-white/20 backdrop-blur-sm overflow-hidden">
           {/* 文件夹头部 */}
           <div 
-            className="p-4 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors"
+            className="p-3 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors"
             onClick={handleFolderClick}
           >
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2.5">
               {/* 展开/收缩按钮 */}
               <button
                 onClick={handleToggle}
-                className="p-1 rounded-md hover:bg-white/10 transition-colors"
+                className="p-0.5 rounded-md hover:bg-white/10 transition-colors"
               >
                 {isExpanded ? (
-                  <ChevronDown className="w-4 h-4 text-white/80" />
+                  <ChevronDown className="w-3.5 h-3.5 text-white/80" />
                 ) : (
-                  <ChevronRight className="w-4 h-4 text-white/80" />
+                  <ChevronRight className="w-3.5 h-3.5 text-white/80" />
                 )}
               </button>
 
               {/* 文件夹图标 */}
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center flex-shrink-0">
-                <Folder className="w-6 h-6 text-white" />
+              <div className="w-8 h-8 rounded-md bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center flex-shrink-0">
+                <Folder className="w-5 h-5 text-white" />
               </div>
 
               {/* 文件夹信息 */}
               <div className="flex-1 min-w-0">
-                <div className="flex items-center space-x-2 mb-1">
-                  <h3 className="font-semibold text-lg text-white truncate">
+                <div className="flex items-center space-x-2 mb-0.5">
+                  <h3 className="font-semibold text-base text-white truncate">
                     {folder.title}
                   </h3>
                   {category && (
                     <Badge
                       variant="secondary"
-                      className="text-xs px-2 py-1 rounded-full"
+                      className="text-xs px-1.5 py-0.5 rounded-full"
                       style={{ backgroundColor: `${category.color}20`, color: category.color }}
                     >
                       {category.name}
                     </Badge>
                   )}
                 </div>
-                <div className="text-sm text-white/60">
+                <div className="text-xs text-white/60">
                   {hasChildren ? `${folder.children!.length} 个项目` : '空文件夹'}
                 </div>
               </div>
@@ -101,10 +101,10 @@ const FolderContainer: React.FC<FolderContainerProps> = ({ folder, onFolderNavig
                     <Button
                       variant="secondary"
                       size="icon"
-                      className="h-8 w-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 bg-white/20 backdrop-blur-sm border border-white/30"
+                      className="h-6 w-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 bg-white/20 backdrop-blur-sm border border-white/30"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <MoreVertical className="h-4 w-4 text-white" />
+                      <MoreVertical className="h-3 w-3 text-white" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
@@ -127,22 +127,22 @@ const FolderContainer: React.FC<FolderContainerProps> = ({ folder, onFolderNavig
 
           {/* 文件夹内容区域 */}
           {isExpanded && hasChildren && (
-            <div className="p-4 bg-white/5">
+            <div className="p-3 bg-white/5">
               {/* 子文件夹 */}
               {childFolders.length > 0 && (
-                <div className="mb-4">
-                  <h4 className="text-sm font-medium text-white/80 mb-3">子文件夹</h4>
-                  <div className="space-y-2">
+                <div className="mb-3">
+                  <h4 className="text-sm font-medium text-white/80 mb-2">子文件夹</h4>
+                  <div className="space-y-1.5">
                     {childFolders.map(childFolder => (
                       <div
                         key={childFolder.id}
                         onClick={() => onFolderNavigate?.(childFolder.id)}
-                        className="flex items-center space-x-3 p-3 rounded-lg bg-white/10 hover:bg-white/20 cursor-pointer transition-colors"
+                        className="flex items-center space-x-2.5 p-2.5 rounded-md bg-white/10 hover:bg-white/20 cursor-pointer transition-colors"
                       >
-                        <div className="w-6 h-6 rounded-md bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center flex-shrink-0">
-                          <Folder className="w-4 h-4 text-white" />
+                        <div className="w-5 h-5 rounded-sm bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center flex-shrink-0">
+                          <Folder className="w-3 h-3 text-white" />
                         </div>
-                        <span className="font-medium text-white truncate">
+                        <span className="font-medium text-sm text-white truncate">
                           {childFolder.title}
                         </span>
                         <span className="text-xs text-white/60 ml-auto">
@@ -158,9 +158,9 @@ const FolderContainer: React.FC<FolderContainerProps> = ({ folder, onFolderNavig
               {childBookmarks.length > 0 && (
                 <div>
                   {childFolders.length > 0 && (
-                    <h4 className="text-sm font-medium text-white/80 mb-3">书签</h4>
+                    <h4 className="text-sm font-medium text-white/80 mb-2">书签</h4>
                   )}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                     {childBookmarks.map(bookmark => (
                       <BookmarkCard key={bookmark.id} bookmark={bookmark} />
                     ))}
@@ -172,7 +172,7 @@ const FolderContainer: React.FC<FolderContainerProps> = ({ folder, onFolderNavig
 
           {/* 空状态 */}
           {isExpanded && !hasChildren && (
-            <div className="p-8 text-center">
+            <div className="p-6 text-center">
               <div className="text-white/40 text-sm">
                 这个文件夹是空的
               </div>
