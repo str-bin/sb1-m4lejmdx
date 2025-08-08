@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Bookmark, BookmarkStore, DataSourceType } from '../types/bookmark'
+import type { Bookmark, BookmarkStore } from '../types/bookmark'
 import { adapterFactory } from '../lib/adapters'
 import { toast } from 'sonner'
 

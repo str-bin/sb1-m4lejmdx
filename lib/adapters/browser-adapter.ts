@@ -2,7 +2,7 @@ import type {
   Bookmark,
   BookmarkDataAdapter,
 } from "../../types/bookmark";
-import { generateId } from "../utils";
+
 
 export class BrowserAdapter implements BookmarkDataAdapter {
   type = "browser" as const;
@@ -235,8 +235,8 @@ export class BrowserAdapter implements BookmarkDataAdapter {
   }
 
   async reorderBookmarks(
-    sourceIndex: number,
-    destinationIndex: number
+    _sourceIndex: number,
+    _destinationIndex: number
   ): Promise<void> {
     // 浏览器书签API不支持直接重排序，这里只是占位实现
     console.warn("Browser bookmarks reordering is not supported");

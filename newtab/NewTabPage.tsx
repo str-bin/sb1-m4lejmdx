@@ -46,22 +46,6 @@ const NewTabPage: React.FC = () => {
     }
   }, [bookmarks.length, addBookmark])
 
-
-
-  // 获取所有文件夹
-  const getAllFolders = (bookmarkList: any[]): any[] => {
-    let folders: any[] = []
-    for (const bookmark of bookmarkList) {
-      if (bookmark.isFolder) {
-        folders.push(bookmark)
-        if (bookmark.children) {
-          folders = folders.concat(getAllFolders(bookmark.children))
-        }
-      }
-    }
-    return folders
-  }
-
   // 获取顶层文件夹（只有根级别的文件夹）
   const getTopLevelFolders = (bookmarkList: any[]): any[] => {
     return bookmarkList.filter(bookmark => bookmark.isFolder)
@@ -86,10 +70,6 @@ const NewTabPage: React.FC = () => {
     return folder?.children || []
   }
 
-
-
-
-
   // 处理文件夹导航
   const handleFolderNavigate = (folderId: string) => {
     setCurrentFolder(folderId)
@@ -99,10 +79,6 @@ const NewTabPage: React.FC = () => {
   const handleFolderSelect = (folderId: string | null) => {
     setCurrentFolder(folderId)
   }
-
-
-
-
 
   return (
     <div className="h-screen overflow-hidden transition-all duration-300 bg-gradient-to-br from-background via-muted/30 to-background relative">

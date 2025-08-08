@@ -17,13 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from '../../components/ui/form'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../../components/ui/select'
+
 import { Input } from '../../components/ui/input'
 import { Button } from '../../components/ui/button'
 import { useBookmarkStore } from '../../store/bookmarkStore'
@@ -35,7 +29,6 @@ import { toast } from 'sonner'
 const createFormSchema = (isFolder: boolean) => {
   const baseSchema = {
     title: z.string().min(1, '请输入标题'),
-    category: z.string().optional(),
   }
 
   if (isFolder) {
@@ -51,7 +44,6 @@ const createFormSchema = (isFolder: boolean) => {
 type FormData = {
   title: string
   url?: string
-  category?: string
 }
 
 interface EditBookmarkDialogProps {
@@ -65,7 +57,7 @@ const EditBookmarkDialog: React.FC<EditBookmarkDialogProps> = ({
   open,
   onOpenChange,
 }) => {
-  const { updateBookmark, categories } = useBookmarkStore()
+  const { updateBookmark } = useBookmarkStore()
   const isFolder = bookmark.isFolder || false
   
   const form = useForm<FormData>({
@@ -73,7 +65,6 @@ const EditBookmarkDialog: React.FC<EditBookmarkDialogProps> = ({
     defaultValues: {
       title: bookmark.title,
       url: bookmark.url,
-      category: bookmark.category || '',
     },
   })
 
@@ -82,7 +73,6 @@ const EditBookmarkDialog: React.FC<EditBookmarkDialogProps> = ({
       form.reset({
         title: bookmark.title,
         url: bookmark.url,
-        category: bookmark.category || '',
       })
     }
   }, [bookmark, open, form])
@@ -90,7 +80,6 @@ const EditBookmarkDialog: React.FC<EditBookmarkDialogProps> = ({
   const onSubmit = (data: FormData) => {
     const updates: Partial<Bookmark> = {
       title: data.title,
-      category: data.category || undefined,
     }
 
     if (!isFolder) {
@@ -161,38 +150,6 @@ const EditBookmarkDialog: React.FC<EditBookmarkDialogProps> = ({
                 )}
               />
             )}
-
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>分类</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="选择分类（可选）" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="">无分类</SelectItem>
-                      {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
-                          <div className="flex items-center space-x-2">
-                            <div
-                              className="w-3 h-3 rounded-full"
-                              style={{ backgroundColor: category.color }}
-                            />
-                            <span>{category.name}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             <div className="flex space-x-3">
               <Button
