@@ -63,13 +63,52 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark }) => {
 
           {/* 右侧：内容信息 */}
           <div className="flex-1 ml-3 min-w-0 flex flex-col justify-between h-full">
-            {/* 顶部：标题 */}
-            <div>
-              <h3 className="font-medium text-sm text-white leading-tight line-clamp-1 mb-1">
-                {bookmark.title}
-              </h3>
-              <div className="text-xs text-white/60 truncate">
-                {new URL(bookmark.url).hostname}
+            {/* 顶部：标题和操作按钮 */}
+            <div className="flex items-start justify-between">
+              <div className="flex-1 min-w-0">
+                <h3 className="font-medium text-sm text-white leading-tight line-clamp-1 mb-1">
+                  {bookmark.title}
+                </h3>
+                <div className="text-xs text-white/60 truncate">
+                  {new URL(bookmark.url).hostname}
+                </div>
+              </div>
+              
+              {/* 操作菜单 */}
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-2 flex-shrink-0">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="h-5 w-5 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 bg-white/20 backdrop-blur-sm border border-white/30"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <MoreVertical className="h-3 w-3 text-white" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={handleClick}>
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      打开链接
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleCopyUrl}>
+                      <Copy className="mr-2 h-4 w-4" />
+                      复制链接
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      编辑
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={handleDelete}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      删除
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
 
@@ -92,43 +131,6 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark }) => {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* 操作菜单 */}
-        <div className="absolute top-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="secondary"
-                size="icon"
-                className="h-6 w-6 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 bg-white/20 backdrop-blur-sm border border-white/30"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <MoreVertical className="h-3 w-3 text-white" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={handleClick}>
-                <ExternalLink className="mr-2 h-4 w-4" />
-                打开链接
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleCopyUrl}>
-                <Copy className="mr-2 h-4 w-4" />
-                复制链接
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
-                <Edit className="mr-2 h-4 w-4" />
-                编辑
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={handleDelete}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                删除
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </div>
 
