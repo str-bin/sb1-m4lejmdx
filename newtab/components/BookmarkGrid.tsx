@@ -74,7 +74,9 @@ const BookmarkGrid: React.FC<BookmarkGridProps> = ({ bookmarks, level = 0, path 
                         style={{
                           ...provided.draggableProps.style,
                           position: snapshot.isDragging ? 'relative' : 'static',
-                          zIndex: snapshot.isDragging ? 9999 : 'auto'
+                          zIndex: snapshot.isDragging ? 9999 : 'auto',
+                          width: '240px',
+                          flexShrink: 0
                         }}
                       >
                         <BookmarkCard bookmark={bookmark} />
