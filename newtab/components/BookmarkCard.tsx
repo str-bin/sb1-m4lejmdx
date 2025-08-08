@@ -44,8 +44,7 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark }) => {
       <div className="group relative">
         <div
           onClick={handleClick}
-          className="glass rounded-lg p-3 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border border-white/20 backdrop-blur-sm h-[80px] flex items-center"
-          style={{ aspectRatio: '3/1' }}
+          className="glass rounded-lg p-3 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border border-white/20 backdrop-blur-sm h-[80px] w-[240px] flex items-center flex-shrink-0"
         >
           {/* 左侧：网站图标 */}
           <div className="flex items-center flex-shrink-0">

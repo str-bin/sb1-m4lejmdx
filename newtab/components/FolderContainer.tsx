@@ -160,7 +160,7 @@ const FolderContainer: React.FC<FolderContainerProps> = ({ folder, onFolderNavig
                   {childFolders.length > 0 && (
                     <h4 className="text-sm font-medium text-white/80 mb-2">书签</h4>
                   )}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                  <div className="flex flex-wrap gap-3">
                     {childBookmarks.map(bookmark => (
                       <BookmarkCard key={bookmark.id} bookmark={bookmark} />
                     ))}
