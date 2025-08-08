@@ -1,26 +1,24 @@
 import React, { useState, useEffect } from 'react'
-import { DragDropContext, DropResult } from 'react-beautiful-dnd'
+
 import Header from './components/Header'
 import BookmarkGrid from './components/BookmarkGrid'
 import AddBookmarkDialog from './components/AddBookmarkDialog'
 import { FolderSidebar } from './components/FolderSidebar'
-import { Breadcrumb } from './components/Breadcrumb'
+
 import { useBookmarkStore } from '../store/bookmarkStore'
-import { useTheme } from 'next-themes'
+
 import { initializeTestData } from '../lib/init-test-data'
 
 
 const NewTabPage: React.FC = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-  const [currentFolderPath, setCurrentFolderPath] = useState<string[]>([])
+
   const [currentFolder, setCurrentFolder] = useState<string | null>(null)
-  const { theme } = useTheme()
   
   const {
     bookmarks,
     initializeBookmarks,
     addBookmark,
-    moveBookmark,
     findBookmarkById,
   } = useBookmarkStore()
 
@@ -48,6 +46,8 @@ const NewTabPage: React.FC = () => {
     }
   }, [bookmarks.length, addBookmark])
 
+
+
   // 获取所有文件夹
   const getAllFolders = (bookmarkList: any[]): any[] => {
     let folders: any[] = []
@@ -62,6 +62,21 @@ const NewTabPage: React.FC = () => {
     return folders
   }
 
+  // 获取顶层文件夹（只有根级别的文件夹）
+  const getTopLevelFolders = (bookmarkList: any[]): any[] => {
+    return bookmarkList.filter(bookmark => bookmark.isFolder)
+  }
+
+  // 自动选择第一个文件夹
+  useEffect(() => {
+    if (bookmarks.length > 0 && currentFolder === null) {
+      const topLevelFolders = getTopLevelFolders(bookmarks)
+      if (topLevelFolders.length > 0) {
+        setCurrentFolder(topLevelFolders[0].id)
+      }
+    }
+  }, [bookmarks, currentFolder])
+
   // 获取当前显示的书签
   const getCurrentBookmarks = () => {
     if (currentFolder === null) {
@@ -71,27 +86,13 @@ const NewTabPage: React.FC = () => {
     return folder?.children || []
   }
 
-  // 获取当前文件夹的路径
-  const getCurrentFolderPath = (): string[] => {
-    if (currentFolder === null) return []
-    
-    const buildPath = (folderId: string): string[] => {
-      const folder = findBookmarkById(bookmarks, folderId)
-      if (!folder) return []
-      
-      const path = [folder.title]
-      // 这里假设未来会添加 parentId 字段，目前先返回单层路径
-      return path
-    }
-    
-    return buildPath(currentFolder)
-  }
+
 
 
 
   // 处理文件夹导航
   const handleFolderNavigate = (folderId: string) => {
-    setCurrentFolderPath([...currentFolderPath, folderId])
+    setCurrentFolder(folderId)
   }
 
   // 处理文件夹选择（侧边栏）
@@ -99,79 +100,51 @@ const NewTabPage: React.FC = () => {
     setCurrentFolder(folderId)
   }
 
-  // 处理面包屑导航
-  const handleBreadcrumbClick = (folderId: string | null) => {
-    setCurrentFolder(folderId)
-  }
 
-  const handleDragEnd = (result: DropResult) => {
-    if (!result.destination) return
-    
-    const { source, destination, draggableId } = result
-    
-    // 如果拖拽到同一个位置，不做任何操作
-    if (source.droppableId === destination.droppableId && source.index === destination.index) {
-      return
-    }
-    
-    // 解析拖拽路径
-    const sourcePath = source.droppableId === 'droppable-root' ? [] : source.droppableId.split('-').slice(1)
-    const destPath = destination.droppableId === 'droppable-root' ? [] : destination.droppableId.split('-').slice(1)
-    
-    // 执行移动操作
-    moveBookmark(draggableId, sourcePath, destPath, source.index, destination.index)
-  }
+
+
 
   return (
-    <div className={`min-h-screen transition-all duration-300 ${
-      theme === 'dark' 
-        ? 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900' 
-        : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'
-    }`}>
+    <div className="h-screen overflow-hidden transition-all duration-300 bg-gradient-to-br from-background via-muted/30 to-background relative">
+      {/* 背景装饰 */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl opacity-20 pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl opacity-20 pointer-events-none" />
       {/* 顶部 Header */}
-      <div className="border-b border-white/20">
+      <div className="border-b border-border relative z-10">
         <div className="px-6 py-4">
           <Header onAddBookmark={() => setIsAddDialogOpen(true)} />
         </div>
       </div>
 
       {/* 主体内容 - 左右布局 */}
-      <div className="flex min-h-[calc(100vh-80px)]">
+      <div className="flex h-[calc(100vh-80px)] relative z-10">
         {/* 左侧文件夹边栏 */}
-        <div className="w-64 border-r border-white/20 bg-white/10 backdrop-blur-sm">
-          <FolderSidebar
-            folders={getAllFolders(bookmarks)}
-            currentFolder={currentFolder}
-            onFolderSelect={handleFolderSelect}
-          />
+        <div className="w-64 border-r backdrop-blur-sm border-border bg-card/80">
+                  <FolderSidebar
+          folders={getTopLevelFolders(bookmarks)}
+          currentFolder={currentFolder}
+          onFolderSelect={handleFolderSelect}
+        />
         </div>
         
         {/* 右侧主要内容区域 */}
         <div className="flex-1 overflow-hidden">
-          <div className="p-6 h-full">
-            {/* 面包屑导航 */}
-            <Breadcrumb
-              folderPath={getCurrentFolderPath()}
-              onNavigate={handleBreadcrumbClick}
-              folders={getAllFolders(bookmarks)}
-            />
-
+          <div className="p-6 h-full overflow-y-auto">
             {/* 书签网格 - 主体内容区域 */}
-            <div className="h-[calc(100vh-200px)] overflow-y-auto">
-              <DragDropContext onDragEnd={handleDragEnd}>
-                <div className="min-h-full">
-                  <BookmarkGrid 
-                    bookmarks={getCurrentBookmarks()} 
-                    onFolderNavigate={handleFolderNavigate}
-                  />
-                </div>
-              </DragDropContext>
+            <div className="h-full">
+              <div className="min-h-full">
+                <BookmarkGrid 
+                  bookmarks={getCurrentBookmarks()} 
+                  onFolderNavigate={handleFolderNavigate}
+                />
+              </div>
             </div>
 
             {/* 空状态 */}
             {getCurrentBookmarks().length === 0 && (
               <div className="text-center py-12">
-                <div className="glass rounded-2xl p-8 inline-block shadow-lg">
+                <div className="glass rounded-2xl p-8 inline-block">
                   <div className="text-4xl mb-3">📚</div>
                   <h3 className="text-lg font-semibold mb-2 text-white">
                     {currentFolder ? '此文件夹为空' : '还没有书签或文件夹'}
@@ -184,7 +157,7 @@ const NewTabPage: React.FC = () => {
                   </p>
                   <button
                     onClick={() => setIsAddDialogOpen(true)}
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg hover:scale-105 transition-all text-sm"
+                    className="bg-blue-500 text-white px-4 py-2 rounded-lg border border-blue-600 text-sm"
                   >
                     添加项目
                   </button>

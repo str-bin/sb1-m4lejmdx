@@ -121,7 +121,7 @@ const EditBookmarkDialog: React.FC<EditBookmarkDialogProps> = ({
             </>
           ) : (
             <>
-              <Link className="w-4 h-4 text-blue-500" />
+              <Link className="w-4 h-4 text-primary" />
               <span className="text-sm font-medium">书签</span>
             </>
           )}

@@ -23,7 +23,7 @@ const DataSourceToggle: React.FC = () => {
   if (!isBrowserExtension()) {
     return (
       <div className="flex items-center gap-2">
-        <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+        <Badge variant="secondary">
           <Database className="w-3 h-3 mr-1" />
           本地存储
         </Badge>

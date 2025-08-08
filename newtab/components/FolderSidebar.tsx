@@ -28,16 +28,16 @@ export function FolderSidebar({ folders, currentFolder, onFolderSelect }: Folder
           onClick={() => onFolderSelect(folder.id)}
           className={cn(
             "w-full flex items-center space-x-2 px-3 py-2 text-left text-sm rounded-md transition-colors",
-            "hover:bg-white/20",
-            isSelected && "bg-white/30 text-white border-r-2 border-blue-400",
-            !isSelected && "text-white/80"
+            "",
+            isSelected && "bg-accent text-accent-foreground border-r border-primary",
+            !isSelected && "text-muted-foreground"
           )}
           style={{ paddingLeft: `${12 + level * 16}px` }}
         >
-          <Folder className="w-4 h-4 flex-shrink-0" />
+          <Folder className="w-4 h-4 flex-shrink-0 text-primary" />
           <span className="truncate">{folder.title}</span>
           {hasChildren && (
-            <span className="ml-auto text-xs text-white/60">
+            <span className="ml-auto text-xs text-muted-foreground">
               {folder.children!.length}
             </span>
           )}
@@ -49,7 +49,7 @@ export function FolderSidebar({ folders, currentFolder, onFolderSelect }: Folder
   return (
     <div className="h-full overflow-y-auto">
       <div className="p-4">
-        <h2 className="text-lg font-semibold text-white mb-4">文件夹</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-4">文件夹</h2>
         
         {/* 文件夹树 */}
         <div className="space-y-1">

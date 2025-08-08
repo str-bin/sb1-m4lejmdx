@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from '../../components/ui/dropdown-menu'
 import { Button } from '../../components/ui/button'
-import { Badge } from '../../components/ui/badge'
+
 import { useBookmarkStore } from '../../store/bookmarkStore'
 import { getFaviconUrl } from '../../lib/utils'
 import type { Bookmark } from '../../types/bookmark'
@@ -20,9 +20,7 @@ interface BookmarkCardProps {
 
 const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark }) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const { deleteBookmark, categories } = useBookmarkStore()
-
-  const category = categories.find(cat => cat.id === bookmark.category)
+  const { deleteBookmark } = useBookmarkStore()
   const faviconUrl = getFaviconUrl(bookmark.url)
 
   const handleClick = () => {
@@ -44,11 +42,11 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark }) => {
       <div className="group relative">
         <div
           onClick={handleClick}
-          className="glass rounded-lg p-3 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border border-white/20 backdrop-blur-sm h-[80px] w-[240px] flex items-center flex-shrink-0"
+          className="glass rounded-xl p-4 cursor-pointer h-[80px] w-[400px] flex items-center flex-shrink-0"
         >
           {/* 左侧：网站图标 */}
           <div className="flex items-center flex-shrink-0">
-            <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center overflow-hidden">
+            <div className="w-12 h-12 rounded-xl bg-muted/20 border border-border flex items-center justify-center overflow-hidden">
               <img
                 src={faviconUrl}
                 alt={bookmark.title}
@@ -66,25 +64,25 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark }) => {
             {/* 顶部：标题和操作按钮 */}
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-sm text-white leading-tight line-clamp-1 mb-1">
+                <h3 className="font-medium text-sm text-foreground leading-tight line-clamp-1 mb-1">
                   {bookmark.title}
                 </h3>
-                <div className="text-xs text-white/60 truncate">
+                <div className="text-xs text-muted-foreground truncate">
                   {new URL(bookmark.url).hostname}
                 </div>
               </div>
               
               {/* 操作菜单 */}
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-2 flex-shrink-0">
+              <div className="ml-2 flex-shrink-0">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="secondary"
                       size="icon"
-                      className="h-5 w-5 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 bg-white/20 backdrop-blur-sm border border-white/30"
+                      className="h-5 w-5 rounded-full border border-border"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <MoreVertical className="h-3 w-3 text-white" />
+                      <MoreVertical className="h-3 w-3" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
@@ -112,21 +110,9 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark }) => {
               </div>
             </div>
 
-            {/* 底部：分类和日期 */}
-            <div className="flex items-center justify-between">
-              {category ? (
-                <Badge
-                  variant="secondary"
-                  className="text-xs px-1.5 py-0.5 rounded-full"
-                  style={{ backgroundColor: `${category.color}20`, color: category.color }}
-                >
-                  {category.name}
-                </Badge>
-              ) : (
-                <div></div>
-              )}
-              
-              <div className="text-xs text-white/40">
+            {/* 底部：日期 */}
+            <div className="flex items-center justify-end">
+              <div className="text-xs text-muted-foreground/60">
                 {new Date(bookmark.createdAt).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })}
               </div>
             </div>

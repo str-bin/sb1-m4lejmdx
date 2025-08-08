@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from '../../components/ui/dropdown-menu'
 import { Button } from '../../components/ui/button'
-import { Badge } from '../../components/ui/badge'
+
 import { useBookmarkStore } from '../../store/bookmarkStore'
 import type { Bookmark } from '../../types/bookmark'
 import { toast } from 'sonner'
@@ -21,7 +21,7 @@ interface FolderCardProps {
 
 const FolderCard: React.FC<FolderCardProps> = ({ folder, level = 0, onNavigate }) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const { deleteBookmark, categories } = useBookmarkStore()
+  const { deleteBookmark } = useBookmarkStore()
 
   // 处理文件夹点击 - 导航到文件夹内部
   const handleFolderClick = () => {
@@ -29,8 +29,6 @@ const FolderCard: React.FC<FolderCardProps> = ({ folder, level = 0, onNavigate }
       onNavigate(folder.id)
     }
   }
-
-  const category = categories.find(cat => cat.id === folder.category)
   const hasChildren = folder.children && folder.children.length > 0
 
   // 调试信息
@@ -51,7 +49,7 @@ const FolderCard: React.FC<FolderCardProps> = ({ folder, level = 0, onNavigate }
       <div className="group relative max-w-full" style={{ position: 'relative' }}>
         <div
           onClick={handleFolderClick}
-          className="glass rounded-lg p-2 cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl border border-white/20 backdrop-blur-sm h-8 flex items-center"
+          className="glass rounded-xl p-2 cursor-pointer h-8 flex items-center"
           style={{ 
             position: 'relative',
             visibility: 'visible',
@@ -59,8 +57,8 @@ const FolderCard: React.FC<FolderCardProps> = ({ folder, level = 0, onNavigate }
           }}
         >
           {/* 文件夹图标 */}
-          <div className="w-5 h-5 rounded-md bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center overflow-hidden folder-icon flex-shrink-0 mr-2">
-            <Folder className="w-3 h-3 text-white" />
+          <div className="w-5 h-5 rounded-lg bg-primary/10 border border-primary flex items-center justify-center overflow-hidden folder-icon flex-shrink-0 mr-2">
+            <Folder className="w-3 h-3 text-primary" />
           </div>
 
           {/* 标题和展开指示器 */}
@@ -69,15 +67,6 @@ const FolderCard: React.FC<FolderCardProps> = ({ folder, level = 0, onNavigate }
               {folder.title}
             </h3>
             <div className="flex items-center space-x-1 ml-2">
-              {category && (
-                <Badge
-                  variant="secondary"
-                  className="text-xs px-1 py-0.5 rounded-full"
-                  style={{ backgroundColor: `${category.color}20`, color: category.color }}
-                >
-                  {category.name}
-                </Badge>
-              )}
               <span className="text-xs text-muted-foreground">
                 {hasChildren ? `${folder.children!.length}` : '0'}
               </span>
@@ -86,17 +75,17 @@ const FolderCard: React.FC<FolderCardProps> = ({ folder, level = 0, onNavigate }
           </div>
 
           {/* 悬停指示器 */}
-          <div className="absolute inset-0 rounded-lg border-2 border-transparent group-hover:border-white/20 transition-colors pointer-events-none" />
+
         </div>
 
         {/* 操作菜单 */}
-        <div className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <div className="absolute -top-1 -right-1">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="secondary"
                 size="icon"
-                className="h-5 w-5 rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
+                className="h-5 w-5 rounded-full border border-border"
                 onClick={(e) => e.stopPropagation()}
               >
                 <MoreVertical className="h-2.5 w-2.5" />
