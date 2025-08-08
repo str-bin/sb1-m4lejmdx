@@ -9,10 +9,6 @@ interface BreadcrumbProps {
 }
 
 export function Breadcrumb({ folderPath, onNavigate, folders }: BreadcrumbProps) {
-  const getFolderById = (folderId: string) => {
-    return folders.find(f => f.id === folderId)
-  }
-
   const getFolderIdByName = (name: string) => {
     const folder = folders.find(f => f.title === name)
     return folder?.id || null
