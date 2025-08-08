@@ -44,51 +44,53 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark }) => {
       <div className="group relative">
         <div
           onClick={handleClick}
-          className="glass rounded-lg p-3 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border border-white/20 backdrop-blur-sm min-h-[90px] flex flex-col justify-between"
+          className="glass rounded-lg p-3 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl border border-white/20 backdrop-blur-sm h-[80px] flex items-center"
+          style={{ aspectRatio: '3/1' }}
         >
-          {/* 顶部：网站图标和域名 */}
-          <div className="flex items-center space-x-2 mb-2">
-            <div className="w-6 h-6 rounded-md bg-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
+          {/* 左侧：网站图标 */}
+          <div className="flex items-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center overflow-hidden">
               <img
                 src={faviconUrl}
                 alt={bookmark.title}
-                className="w-4 h-4"
+                className="w-7 h-7"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement
                   target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiByeD0iNCIgZmlsbD0iIzY2NjY2NiIvPgo8dGV4dCB4PSIxMCIgeT0iMTQiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPj88L3RleHQ+Cjwvc3ZnPgo='
                 }}
               />
             </div>
-            <div className="flex-1 min-w-0">
+          </div>
+
+          {/* 右侧：内容信息 */}
+          <div className="flex-1 ml-3 min-w-0 flex flex-col justify-between h-full">
+            {/* 顶部：标题 */}
+            <div>
+              <h3 className="font-medium text-sm text-white leading-tight line-clamp-1 mb-1">
+                {bookmark.title}
+              </h3>
               <div className="text-xs text-white/60 truncate">
                 {new URL(bookmark.url).hostname}
               </div>
             </div>
-          </div>
 
-          {/* 中间：标题 */}
-          <div className="flex-1 flex items-center">
-            <h3 className="font-medium text-sm text-white leading-tight line-clamp-2">
-              {bookmark.title}
-            </h3>
-          </div>
-
-          {/* 底部：分类标签 */}
-          <div className="flex items-center justify-between mt-2">
-            {category ? (
-              <Badge
-                variant="secondary"
-                className="text-xs px-1.5 py-0.5 rounded-full"
-                style={{ backgroundColor: `${category.color}20`, color: category.color }}
-              >
-                {category.name}
-              </Badge>
-            ) : (
-              <div></div>
-            )}
-            
-            <div className="text-xs text-white/40">
-              {new Date(bookmark.createdAt).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })}
+            {/* 底部：分类和日期 */}
+            <div className="flex items-center justify-between">
+              {category ? (
+                <Badge
+                  variant="secondary"
+                  className="text-xs px-1.5 py-0.5 rounded-full"
+                  style={{ backgroundColor: `${category.color}20`, color: category.color }}
+                >
+                  {category.name}
+                </Badge>
+              ) : (
+                <div></div>
+              )}
+              
+              <div className="text-xs text-white/40">
+                {new Date(bookmark.createdAt).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })}
+              </div>
             </div>
           </div>
         </div>

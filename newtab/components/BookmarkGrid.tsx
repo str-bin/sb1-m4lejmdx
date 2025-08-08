@@ -60,7 +60,7 @@ const BookmarkGrid: React.FC<BookmarkGridProps> = ({ bookmarks, level = 0, path 
           {/* 渲染普通书签 */}
           {regularBookmarks.length > 0 && (
             <div className={folders.length > 0 ? 'mt-4' : ''}>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-3">
                 {regularBookmarks.map((bookmark, index) => (
                   <Draggable key={bookmark.id} draggableId={bookmark.id} index={folders.length + index}>
                     {(provided, snapshot) => (
