@@ -16,19 +16,13 @@ import EditBookmarkDialog from './EditBookmarkDialog'
 interface FolderCardProps {
   folder: Bookmark
   level?: number
-  onNavigate?: (folderId: string) => void
 }
 
-const FolderCard: React.FC<FolderCardProps> = ({ folder, level = 0, onNavigate }) => {
+const FolderCard: React.FC<FolderCardProps> = ({ folder, level = 0 }) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const { deleteBookmark } = useBookmarkStore()
 
-  // 处理文件夹点击 - 导航到文件夹内部
-  const handleFolderClick = () => {
-    if (onNavigate) {
-      onNavigate(folder.id)
-    }
-  }
+
   const hasChildren = folder.children && folder.children.length > 0
 
   // 调试信息
@@ -48,8 +42,7 @@ const FolderCard: React.FC<FolderCardProps> = ({ folder, level = 0, onNavigate }
       
       <div className="group relative max-w-full" style={{ position: 'relative' }}>
         <div
-          onClick={handleFolderClick}
-          className="glass rounded-xl p-1.5 cursor-pointer h-8 flex items-center"
+          className="glass rounded-xl p-1.5 h-8 flex items-center"
           style={{ 
             position: 'relative',
             visibility: 'visible',

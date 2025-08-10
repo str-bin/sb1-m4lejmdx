@@ -70,10 +70,7 @@ const NewTabPage: React.FC = () => {
     return folder?.children || []
   }
 
-  // 处理文件夹导航
-  const handleFolderNavigate = (folderId: string) => {
-    setCurrentFolder(folderId)
-  }
+
 
   // 处理文件夹选择（侧边栏）
   const handleFolderSelect = (folderId: string | null) => {
@@ -112,7 +109,6 @@ const NewTabPage: React.FC = () => {
               <div className="min-h-full">
                 <BookmarkGrid 
                   bookmarks={getCurrentBookmarks()} 
-                  onFolderNavigate={handleFolderNavigate}
                 />
               </div>
             </div>

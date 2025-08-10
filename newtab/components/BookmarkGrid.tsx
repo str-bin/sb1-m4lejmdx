@@ -7,10 +7,9 @@ import type { Bookmark } from '../../types/bookmark'
 interface BookmarkGridProps {
   bookmarks: Bookmark[]
   level?: number
-  onFolderNavigate?: (folderId: string) => void
 }
 
-const BookmarkGrid: React.FC<BookmarkGridProps> = ({ bookmarks, level = 0, onFolderNavigate }) => {
+const BookmarkGrid: React.FC<BookmarkGridProps> = ({ bookmarks, level = 0 }) => {
   // 分离文件夹和书签
   const folders = bookmarks.filter(bookmark => bookmark.isFolder)
   const regularBookmarks = bookmarks.filter(bookmark => !bookmark.isFolder)
@@ -39,7 +38,7 @@ const BookmarkGrid: React.FC<BookmarkGridProps> = ({ bookmarks, level = 0, onFol
                 breakInside: 'avoid'
               }}
             >
-              <FolderContainer folder={folder} onFolderNavigate={onFolderNavigate} />
+              <FolderContainer folder={folder} />
             </div>
           ))}
         </div>

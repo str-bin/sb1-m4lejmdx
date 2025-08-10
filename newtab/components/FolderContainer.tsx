@@ -16,10 +16,9 @@ import EditBookmarkDialog from './EditBookmarkDialog'
 
 interface FolderContainerProps {
   folder: Bookmark
-  onFolderNavigate?: (folderId: string) => void
 }
 
-const FolderContainer: React.FC<FolderContainerProps> = ({ folder, onFolderNavigate }) => {
+const FolderContainer: React.FC<FolderContainerProps> = ({ folder }) => {
   const [isExpanded, setIsExpanded] = useState(true)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const { deleteBookmark } = useBookmarkStore()
@@ -29,11 +28,7 @@ const FolderContainer: React.FC<FolderContainerProps> = ({ folder, onFolderNavig
   const childBookmarks = folder.children?.filter(child => !child.isFolder) || []
   const childFolders = folder.children?.filter(child => child.isFolder) || []
 
-  const handleFolderClick = () => {
-    if (onFolderNavigate) {
-      onFolderNavigate(folder.id)
-    }
-  }
+
 
   const handleToggle = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -52,8 +47,7 @@ const FolderContainer: React.FC<FolderContainerProps> = ({ folder, onFolderNavig
         <div className="glass rounded-xl border border-border backdrop-blur-sm overflow-hidden">
           {/* 文件夹头部 */}
           <div 
-            className="p-2 border-b border-border cursor-pointer"
-            onClick={handleFolderClick}
+            className="p-2 border-b border-border"
           >
             <div className="flex items-center space-x-2.5">
               {/* 展开/收缩按钮 */}
@@ -79,10 +73,9 @@ const FolderContainer: React.FC<FolderContainerProps> = ({ folder, onFolderNavig
                   <h3 className="font-semibold text-sm text-foreground truncate">
                     {folder.title}
                   </h3>
-
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {hasChildren ? `${folder.children!.length} 个项目` : '空文件夹'}
+                  <span className="text-xs text-muted-foreground">
+                    {hasChildren ? `(${folder.children!.length} 个项目)` : '(空文件夹)'}
+                  </span>
                 </div>
               </div>
 
@@ -128,8 +121,7 @@ const FolderContainer: React.FC<FolderContainerProps> = ({ folder, onFolderNavig
                     {childFolders.map(childFolder => (
                       <div
                         key={childFolder.id}
-                        onClick={() => onFolderNavigate?.(childFolder.id)}
-                        className="flex items-center space-x-2 p-2 rounded-lg bg-muted/20 cursor-pointer border border-border"
+                        className="flex items-center space-x-2 p-2 rounded-lg bg-muted/20 border border-border"
                       >
                         <div className="w-5 h-5 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                           <Folder className="w-3 h-3 text-primary" />
