@@ -49,7 +49,7 @@ const FolderCard: React.FC<FolderCardProps> = ({ folder, level = 0, onNavigate }
       <div className="group relative max-w-full" style={{ position: 'relative' }}>
         <div
           onClick={handleFolderClick}
-          className="glass rounded-xl p-2 cursor-pointer h-8 flex items-center"
+          className="glass rounded-xl p-1.5 cursor-pointer h-8 flex items-center"
           style={{ 
             position: 'relative',
             visibility: 'visible',
@@ -57,7 +57,7 @@ const FolderCard: React.FC<FolderCardProps> = ({ folder, level = 0, onNavigate }
           }}
         >
           {/* 文件夹图标 */}
-          <div className="w-5 h-5 rounded-lg bg-primary/10 border border-primary flex items-center justify-center overflow-hidden folder-icon flex-shrink-0 mr-2">
+          <div className="w-5 h-5 rounded-lg bg-primary/10 flex items-center justify-center overflow-hidden folder-icon flex-shrink-0 mr-2">
             <Folder className="w-3 h-3 text-primary" />
           </div>
 

@@ -154,3 +154,21 @@
   background-color: hsl(var(--card) / 0.4);
   border: 1px solid hsl(var(--border));
 }
+
+/* 瀑布流布局样式 */
+.masonry-layout {
+  column-fill: balance;
+  column-gap: 16px;
+  column-width: 400px;
+  min-height: 100px;
+}
+
+.masonry-item {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+
